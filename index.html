@@ -34,8 +34,9 @@
       "esri/Graphic",  
       "esri/layers/GraphicsLayer",
       "esri/geometry/Polyline",
-      "esri/layers/FeatureLayer" 
-    ], function (esriConfig, Map, MapView, BasemapGallery, Locate, Search, Graphic,GraphicsLayer,Polyline,FeatureLayer) {
+      "esri/layers/FeatureLayer",
+      "esri/widgets/Editor" 
+    ], function (esriConfig, Map, MapView, BasemapGallery, Locate, Search, Graphic,GraphicsLayer,Polyline,FeatureLayer, Editor) {
       
       //when API key is active, no basemaps will load in gallery and no search functionality
       esriConfig.apiKey = "AAPTxy8BH1VEsoebNVZXo8HurFoJhgAIY5vGdEdRRAp_EKP3hX46okWbzREzvFOzP3eLMTfinmEi1544H3VrGFnlV6so5dUw7YSu9YGDC-954nuy6aTLI9VPTXITBZEeNsSF0B_tJQ2mneOXc37qlXwggQdzOgIhxiVPZ-epbypcjNDg4G07YzvTAEXRmJH4Uzp6A7Fe2exbTdDRIfg-kRmtFyJLbin0Nuyzz1scUr_FYroHbqoG10J0HaQOMyE-HceUAT1_1S7BNGTZ";     
@@ -140,6 +141,31 @@
 
       //add polygon to Graphics Layer
       graphicsLayer.add(polygonGraphic);
+
+      //adding the editable feature layer
+      const myAirports = new FeatureLayer({
+        url: "https://services.arcgis.com/HRPe58bUyBqyyiCt/arcgis/rest/services/My_Airports_Newton/FeatureServer",
+        //adding the popup here
+        outFields:["AirportCode"]
+      
+      });
+
+      //adding feature layer to map
+      map.add(myAirports);
+
+      //set point layers LayerInfo
+      const pointInfos = {
+        layer: myAirports
+      };
+
+      //begin Editor Constructor
+      const editor = new Editor({
+        view: view,
+        layerInfos: [pointInfos]
+      });  //end constructor
+
+      //add widget to map
+      view.ui.add(editor, "top-right")
 
       //Creates a basemap gallery
       const basemapGallery = new BasemapGallery({
