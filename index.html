@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Hello AGOL</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="description" content="" />
+  
+  <!--Calls ArcGIS API's CSS file and JS Library-->
+  <link rel="stylesheet" href="https://js.arcgis.com/4.31/esri/themes/light/main.css">
+  <script src="https://js.arcgis.com/4.31/"></script>
+  
+<!--css to make the map full screen-->
+  <style>   
+    html,  
+    body,  
+    #viewDiv {  
+      padding: 0;  
+      margin: 0;  
+      height: 100%;  
+      width: 100%;  
+    }  
+  </style>
+  <!--Adds modules needed for a full screen map--> 
+  <script>
+  
+    require([
+      "esri/config", 
+      "esri/Map", 
+      "esri/views/MapView",
+      "esri/widgets/BasemapGallery",
+      "esri/widgets/Locate",
+      "esri/widgets/Search",
+      "esri/Graphic",  
+      "esri/layers/GraphicsLayer",
+      "esri/geometry/Polyline",
+      "esri/layers/FeatureLayer" 
+    ], function (esriConfig, Map, MapView, BasemapGallery, Locate, Search, Graphic,GraphicsLayer,Polyline,FeatureLayer) {
+      
+      //when API key is active, no basemaps will load in gallery and no search functionality
+      esriConfig.apiKey = "AAPTxy8BH1VEsoebNVZXo8HurFoJhgAIY5vGdEdRRAp_EKP3hX46okWbzREzvFOzP3eLMTfinmEi1544H3VrGFnlV6so5dUw7YSu9YGDC-954nuy6aTLI9VPTXITBZEeNsSF0B_tJQ2mneOXc37qlXwggQdzOgIhxiVPZ-epbypcjNDg4G07YzvTAEXRmJH4Uzp6A7Fe2exbTdDRIfg-kRmtFyJLbin0Nuyzz1scUr_FYroHbqoG10J0HaQOMyE-HceUAT1_1S7BNGTZ";     
+      
+      const map = new Map({ 
+        basemap: "terrain" // Basemap layer service 
+      });
+
+      const view = new MapView({
+      map: map,
+      center: [-103.7718, 43.9939], // Longitude, latitude
+      zoom: 9, // Zoom level
+      container: "viewDiv" // Div element
+      });
+
+      const graphicsLayer = new GraphicsLayer();  
+
+      //Defines the geometry of the point
+      const point = { //Create a point  
+        type: "point",
+        longitude: -103.4538,    //long lat of Mt. Rushmore
+        latitude: 43.8803
+      };
+
+      //Creates a template for the popup
+      const popupTemplate = {
+          title: "{Name}",
+          content: "{Description}"
+      }
+      //Sets the attributes of the point
+      const attributes = {
+          Name: "Mount Rushmore National Memorial",
+          Description: "National Monument depicting four of the most influencial Amercian Presidents"
+      }
+      //Add a Style to the marker symbol
+      const simpleMarkerSymbol = {  
+        type: "simple-marker",
+        style: "square",
+        size: 14,  
+        color: [255, 0, 0],  // Red
+        outline: {  
+          color: [0, 0, 0], // Black  
+          width: 1
+        }  
+      };
+
+      //Adds the location and style to the graphic
+      const pointGraphic = new Graphic({  
+        geometry: point,  
+        symbol: simpleMarkerSymbol,
+        attributes: attributes,       //assigns the above attributes to the graphic
+        popupTemplate: popupTemplate  //assigns the above template for the popup  
+      });
+
+      //Adds the point graphic to the graphic layer
+      graphicsLayer.add(pointGraphic);
+
+      //Take 2 Line Graphic Attempt
+      const polyline = {
+        type: "polyline",
+        paths: [[-103.45,43.88], [-103.62,43.84]]
+      };
+
+      const lineSymbol = {
+        type: "simple-line",
+        color: [0,0,0],
+        width: 4
+      };
+
+      const lineGraphic = new Graphic({
+        geometry: polyline,
+        symbol: lineSymbol
+      })
+
+      //Add Line to Graphics Layer
+      graphicsLayer.add(lineGraphic);
+      
+      map.add(graphicsLayer);
+
+      // Create a polygon geometry
+      const polygon = {
+        type: "polygon", // autocasts as new Polygon()
+        rings: [[-103, 44], [-101.75, 44], [-101.75, 43.4], [-103, 43.4], [-103,44]]
+        };
+
+      // Create a symbol for rendering the graphic
+      const fillSymbol = {
+        type: "simple-fill", // autocasts as new SimpleFillSymbol()
+        color: [0, 255, 0, 0.5],
+        outline: {
+          // autocasts as new SimpleLineSymbol()
+          color: [0, 0, 0],
+          width: 1
+        }
+      };
+
+      // Add the geometry and symbol to a new graphic
+      const polygonGraphic = new Graphic({
+        geometry: polygon,
+        symbol: fillSymbol
+      });
+
+      //add polygon to Graphics Layer
+      graphicsLayer.add(polygonGraphic);
+
+      //Creates a basemap gallery
+      const basemapGallery = new BasemapGallery({
+        view: view,        
+      });
+      
+      //creates a location button to zoom to your current location
+      const locatebtn = new Locate({
+        view: view
+      });
+
+      //creates a search bar
+      const searchWidget = new Search({
+        view:view
+      });
+
+      //Define Popup for eduLayer
+      const popupNHP = {
+        "title": "National Historic Place",
+        "content": "The {RESNAME} was certified in {CertDate} and is currently {STATUS} in the register.<br> <a href='{NARA_URL}'>More Information</a>"
+      };
+
+      //Imports the NHP Feature Layer
+      const NHPLayer = new FeatureLayer({
+        url: "https://mapservices.nps.gov/arcgis/rest/services/cultural_resources/nrhp_locations/MapServer",
+        definitionExpression: "State = 'SOUTH DAKOTA'",
+        outFields: ["RESNAME", "CertDate","STATUS","NARA_URL"],
+        popupTemplate: popupNHP
+      });      
+
+      map.add(NHPLayer);
+
+      //Airport Renderer
+      const airportRenderer = {
+        "type": "simple",
+        "symbol": {
+          "type": "picture-marker",
+          "url": "https://zdnewton.github.io/AGOL/local_airport_24dp_000000.png",
+          "width": "18px",
+          "height": "18px"
+        }
+      };
+
+       //Heliport Renderer
+       const heliportRenderer = {
+        "type": "simple",
+        "symbol": {
+          "type": "picture-marker",
+          "url": "https://zdnewton.github.io/AGOL/noun-heliport-2432.png",
+          "width": "18px",
+          "height": "18px"
+        }
+      };  
+
+      //const to make the airport labels
+      const airportLabels = {
+        symbol: {
+          type: "text",
+          color: "#FFFFFF",
+          haloColor: "#5E8D74",
+          haloSize: "2px",
+          font: {
+            size: "12px",
+            family: "Noto Sans",
+            style: "italic",
+            weight: "normal"
+          }
+        },
+        labelPlacement: "above-center",
+        labelExpressionInfo: {
+          expression: "$feature.Fac_Name"
+        }
+      };
+
+      //add Airport FL
+      const airportLayer = new FeatureLayer({
+        url: "https://services.arcgis.com/HRPe58bUyBqyyiCt/ArcGIS/rest/services/US_Airports_Newton/FeatureServer",
+        definitionExpression: "State_Post = 'SD' AND Fac_Type = 'AIRPORT'",
+        renderer: airportRenderer,
+        labelingInfo: [airportLabels]
+      });
+      
+      //add Heliport FL
+      const heliportLayer = new FeatureLayer({
+        url: "https://services.arcgis.com/HRPe58bUyBqyyiCt/ArcGIS/rest/services/US_Airports_Newton/FeatureServer",
+        definitionExpression: "State_Post = 'SD' AND Fac_Type = 'HELIPORT'",
+        renderer: heliportRenderer,
+        labelingInfo: [airportLabels]
+      });
+
+      map.add(airportLayer);
+      map.add(heliportLayer);
+
+      //Adds the above created widgets to the map interface
+      view.ui.add(searchWidget,"top-left"); 
+      view.ui.move("zoom", "top-left")          //reorders the zoom widgets to be under the search bar
+      view.ui.add(basemapGallery, "top-right");
+      view.ui.add(locatebtn, "top-left");
+    
+     });
+
+   </script>
+
+</head>
+<body>
+  
+  <!--Div to display the Map-->
+  <div id="viewDiv"></div> 
+
+</body>
+</html>
