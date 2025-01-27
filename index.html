@@ -150,9 +150,6 @@
       
       });
 
-      //adding feature layer to map
-      map.add(myAirports);
-
       //set point layers LayerInfo
       const pointInfos = {
         layer: myAirports
@@ -258,6 +255,7 @@
 
       map.add(airportLayer);
       map.add(heliportLayer);
+      map.add(myAirports);
 
       //Adds the above created widgets to the map interface
       view.ui.add(searchWidget,"top-left"); 
