@@ -202,17 +202,6 @@
       const basemapGallery = new BasemapGallery({
         view: view,        
       });
-
-      let GalleryExpand = new Expand({
-          expandIcon: "esri-icon-basemap",
-          view: view,
-          content: basemapGallery,
-          expanded: false,
-        });
-        view.ui.add(GalleryExpand, {
-          position: "bottom-right",
-        });
-
       
       //creates a location button to zoom to your current location
       const locatebtn = new Locate({
@@ -309,7 +298,7 @@
       //Adds the above created widgets to the map interface
       view.ui.add(searchWidget,"top-left"); 
       view.ui.move("zoom", "top-left")          //reorders the zoom widgets to be under the search bar
-      //view.ui.add(basemapGallery, "bottom-right");
+      view.ui.add(basemapGallery, "bottom-right");
       view.ui.add(locatebtn, "top-left");
       view.ui.add(legend, "bottom-left");
      });
