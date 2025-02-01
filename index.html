@@ -36,8 +36,9 @@
       "esri/geometry/Polyline",
       "esri/layers/FeatureLayer",
       "esri/widgets/Editor",
-      "esri/widgets/Legend" 
-    ], function (esriConfig, Map, MapView, BasemapGallery, Locate, Search, Graphic,GraphicsLayer,Polyline,FeatureLayer, Editor, Legend) {
+      "esri/widgets/Legend",
+      "esri/widgets/Expand" 
+    ], function (esriConfig, Map, MapView, BasemapGallery, Locate, Search, Graphic,GraphicsLayer,Polyline,FeatureLayer, Editor, Legend, Expand) {
       
       //when API key is active, no basemaps will load in gallery and no search functionality
       esriConfig.apiKey = "AAPTxy8BH1VEsoebNVZXo8HurFoJhgAIY5vGdEdRRAp_EKP3hX46okWbzREzvFOzP3eLMTfinmEi1544H3VrGFnlV6so5dUw7YSu9YGDC-954nuy6aTLI9VPTXITBZEeNsSF0B_tJQ2mneOXc37qlXwggQdzOgIhxiVPZ-epbypcjNDg4G07YzvTAEXRmJH4Uzp6A7Fe2exbTdDRIfg-kRmtFyJLbin0Nuyzz1scUr_FYroHbqoG10J0HaQOMyE-HceUAT1_1S7BNGTZ";     
@@ -204,6 +205,14 @@
         view: view,        
       });
       
+      let baseGalleryExpand = new Expand({
+          expandIcon: "esri-icon-basemap",
+          view: view,
+          content: basemapGallery,
+          expanded: false,
+        });
+
+
       //creates a location button to zoom to your current location
       const locatebtn = new Locate({
         view: view
@@ -301,9 +310,10 @@
       //Adds the above created widgets to the map interface
       view.ui.add(searchWidget,"top-left"); 
       view.ui.move("zoom", "top-left")          //reorders the zoom widgets to be under the search bar
-      view.ui.add(basemapGallery, "bottom-right");
+      //view.ui.add(basemapGallery, "bottom-right");
       view.ui.add(locatebtn, "top-left");
       view.ui.add(legend, "bottom-left");
+      view.ui.add(baseGalleryExpand,"top-left")
      });
 
    </script>
